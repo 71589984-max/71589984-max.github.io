@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOCI - Sistema de Optimización Cognitiva Integral</title>
+    <style>
+        :root { --primary: #1a365d; --secondary: #2b6cb0; --bg: #f7fafc; --text: #2d3748; --accent: #e53e3e; --success: #38a169; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 20px; }
+        .container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 1000px; margin: 0 auto; }
+        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 5px solid var(--secondary); }
+        h2 { color: var(--primary); margin-bottom: 15px; font-size: 18px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+        .progress { background: #e2e8f0; border-radius: 5px; height: 10px; margin: 15px 0; overflow: hidden; }
+        .bar { background: var(--success); width: 0%; height: 100%; transition: width 0.3s; }
+        .timer-box { text-align: center; background: #ebf8ff; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #bee3f8; }
+        .timer-num { font-size: 42px; font-weight: bold; color: var(--primary); margin-bottom: 10px; }
+        button { background: var(--secondary); color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        button:hover { background: var(--primary); }
+        .input-group { margin-top: 15px; }
+        input[type="text"] { width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px; margin-bottom: 5px; }
+        .history { grid-column: 1 / -1; background: white; padding: 20px; border-radius: 8px; border-top: 5px solid var(--success); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .item { background: #f0fff4; padding: 10px; border-radius: 5px; margin-top: 5px; border: 1px solid #c6f6d5; }
+    </style>
+</head>
+<body>
+
+    <h1 style="text-align:center; margin-bottom:25px; color:var(--primary);">SOCI: Sistema de Optimización Cognitiva</h1>
+
+    <div class="container">
+        <!-- CARA A -->
+        <div class="card">
+            <h2>Cara A: Sincronización Circadiana</h2>
+            <label><b>Selecciona tu Perfil Biológico:</b></label>
+            <select id="crono" style="width:100%; padding:10px; margin-top:5px; border-radius:5px;" onchange="cambiarCrono()">
+                <option value="1">Intermedio (Ventana: 10:00 - 12:00 h)</option>
+                <option value="2">Alondra (Ventana: 07:00 - 10:00 h)</option>
+                <option value="3">Búho (Ventana: 16:00 - 19:00 h)</option>
+            </select>
+            <p id="crono-txt" style="margin-top:10px; font-size:13px; color:var(--secondary); font-weight:bold;">💡 Tu atención óptima será de 10:00 a 12:00 h.</p>
+            
+            <h3 style="margin-top:25px; font-size:15px;">Registro de Hábitos de Hoy:</h3>
+            <div class="progress"><div id="barra" class="bar"></div></div>
+            <label style="display:block; margin-bottom:5px;"><input type="checkbox" class="chk" onclick="checkProgreso()"> Regla de los 45 min (Cero pantallas)</label>
+            <label style="display:block; margin-bottom:5px;"><input type="checkbox" class="chk" onclick="checkProgreso()"> Alarma fija por la mañana</label>
+            <label style="display:block;"><input type="checkbox" class="chk" onclick="checkProgreso()"> Bloque de estudio sin celular</label>
+        </div>
+
+        <!-- CARA B -->
+        <div class="card">
+            <h2>Cara B: Procesamiento Activo</h2>
+            <div class="timer-box">
+                <div class="timer-num" id="reloj">45:00</div>
+                <button onclick="activarDemo()" style="background: #4a5568; width: 100%;">Probar con Modo Demo (5 segundos)</button>
+            </div>
+
+            <div id="bloque-oculto" style="opacity: 0.3; pointer-events: none; transition: 0.3s;">
+                <h3 id="estado-m2" style="color:var(--accent);">Módulo II: Evocación Activa 🔒 Bloqueado</h3>
+                <div class="input-group">
+                    <input type="text" id="r1" placeholder="1. ¿Qué idea clave recuerdas?">
+                    <input type="text" id="r2" placeholder="2. ¿Qué detalle o fórmula?">
+                    <button onclick="guardarDatos()" style="background:var(--success); width:100%; margin-top:5px;">Guardar en Historial Real</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- HISTORIAL -->
+        <div class="history">
+            <h3>🗂️ Historial de Consolidación (Datos en Tiempo Real)</h3>
+            <div id="lista-historial" style="color:#a0aec0; font-style:italic; margin-top:5px;">Aún no has guardado sesiones de estudio. Termina el Modo Demo para probar.</div>
+        </div>
+    </div>
+
+    <script>
+        function cambiarCrono() {
+            const val = document.getElementById('crono').value;
+            const txt = document.getElementById('crono-txt');
+            if(val === "1") txt.innerText = "💡 Tu atención óptima será de 10:00 a 12:00 h.";
+            if(val === "2") txt.innerText = "🌅 Perfil Matutino: Máxima alerta de 07:00 a 10:00 h.";
+            if(val === "3") txt.innerText = "🦉 Perfil Vespertino: Rendimiento óptimo de 16:00 a 19:00 h.";
+        }
+
+        function checkProgreso() {
+            const chks = document.querySelectorAll('.chk');
+            let marcados = 0;
+            chks.forEach(c => { if(c.checked) marcados++; });
+            document.getElementById('barra').style.width = (marcados / chks.length) * 100 + "%";
+        }
+
+        function activarDemo() {
+            let tiempo = 5;
+            document.getElementById('reloj').innerText = "00:05";
+            
+            const txtReloj = document.getElementById('reloj');
+            const interval = setInterval(() => {
+                tiempo--;
+                txtReloj.innerText = "00:0" + tiempo;
+                if(tiempo <= 0) {
+                    clearInterval(interval);
+                    txtReloj.innerText = "¡TIEMPO!";
+                    
+                    const box = document.getElementById('bloque-oculto');
+                    box.style.opacity = "1";
+                    box.style.pointer-events = "auto";
+                    
+                    const label = document.getElementById('estado-m2');
+                    label.innerText = "Módulo II: Evocación Activa 🔓 ¡DESBLOQUEADO!";
+                    label.style.color = "var(--success)";
+                }
+            }, 1000);
+        }
+
+        function guardarDatos() {
+            const r1 = document.getElementById('r1').value.trim();
+            const r2 = document.getElementById('r2').value.trim();
+            if(!r1 || !r2) { alert("Escribe en las dos casillas para guardar."); return; }
+
+            const hist = document.getElementById('lista-historial');
+            if(hist.innerText.includes("Aún no has")) hist.innerHTML = "";
+
+            hist.innerHTML += `<div class="item"><b>🧠 Bloque Guardado Exitosamente:</b><br>• ${r1}<br>• ${r2}</div>`;
+            
+            document.getElementById('r1').value = "";
+            document.getElementById('r2').value = "";
+            document.getElementById('reloj').innerText = "45:00";
+            const box = document.getElementById('bloque-oculto');
+            box.style.opacity = "0.3";
+            box.style.pointer-events = "none";
+            const label = document.getElementById('estado-m2');
+            label.innerText = "Módulo II: Evocación Activa 🔒 Bloqueado";
+            label.style.color = "var(--accent)";
+        }
+    </script>
+</body>
+</html>
